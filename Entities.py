@@ -47,8 +47,8 @@ class Lapin(Entity):
 class Loup(Entity):
     def __init__(self, ):
         return
-
-
+ 
+      
 class Case():
     def __init__(self, x, y, occupancy_rate = 0):
         self.type = round(random.uniform(0, 1), 0) #type of the case, it could be grass 0 , terrier 1 
