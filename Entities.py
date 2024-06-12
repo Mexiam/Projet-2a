@@ -1,22 +1,22 @@
 import random
 
 class Entity:
-    def __init__(self):
-        self.id
-        self.parent_male #contains the male parent entity 
-        self.parent_female #contains the female parent entity
-        self.sane #boolean : if false, entity loose speed and energy
-        self.energy #dies if at 0. Entity has to eat to gain energy
-        self.camouflage #determine with case camo if other entities can see it
-        self.base_speed #basic speed of the entity. lower when entity is not sane
-        self.base_energy_consumption #energy consumed at each round
-        self.rationnality #probability to make a rationnal decision next round
+    def __init__(self, case):
+        #self.id
+        #self.parent_male #contains the male parent entity 
+        #self.parent_female #contains the female parent entity
+        #self.sane #boolean : if false, entity loose speed and energy
+        self.energy = round(random.uniform(0.3, 1), 2)#dies if at 0. Entity has to eat to gain energy
+        #self.camouflage #determine with case camo if other entities can see it
+        self.base_speed = round(random.uniform(0, 1), 2) #basic speed of the entity. lower when entity is not sane
+        self.base_energy_consumption = round(random.uniform(0, 0.5), 2) #energy consumed at each round
+        #self.rationnality #probability to make a rationnal decision next round
         self.age = 0 #in number of rounds, updated each rounds
-        self.maturity #minimum age for reproduction
-        self.death_age #maximum age
+        #self.maturity #minimum age for reproduction
+        self.death_age = round(random.uniform(5, 20), 0)#maximum age
         self.alive = True #boolean : if false, entity is dead
-        self.risk_taking #probability to choose a dangerous move towards food or a partner
-        self.position #a Case class entity
+        #self.risk_taking #probability to choose a dangerous move towards food or a partner
+        self.position = case #a Case class entity
 
 
     def set_pos(self, position):
@@ -27,7 +27,7 @@ class Entity:
         self.alive = False
 
 
-    def end_round(self):
+    def new_day(self):
         if self.alive:
             if self.age >= self.death_age:
                 self.alive = False
@@ -40,13 +40,11 @@ class Entity:
             
                 
 class Lapin(Entity):
-    def __init__(self):
-        return
+    pass
 
         
 class Loup(Entity):
-    def __init__(self, ):
-        return
+    pass
  
       
 class Case():
@@ -114,18 +112,47 @@ class Map():
             for j in range(y):
                 self.map[i].append(Case(i,j))
 
+    def __getitem__(self, index):
+        return self.map[index]            
+
     def new_day(self):
         for i in range(self.x):
             for j in range(self.y):
                 self.map[i][j].new_day()
 
+    def get_random_case(self):
+        return self.map[int(round(random.uniform(0, self.x-1), 0))][int(round(random.uniform(0, self.y-1), 0))]  
+
+    def get_food_quantity(self):
+        sum = 0
+        for i in range(self.x):
+            for j in range(self.y):
+                sum += self.map[i][j].quantity_food
+        return sum        
 
 
 class Population():
-    def __init__(self, entity_type, size):
-        individuals = []
+    def __init__(self, entity_type, size, map):
+        self.individuals = []
         for i in range(size):
-            individuals.append(entity_type())
+            random_case = map.get_random_case()
+            self.individuals.append(entity_type(case=random_case))
+
+    def __iter__(self):
+        return iter(self.individuals)
+    
+    def __len__(self):
+        return len(self.individuals)
+    
+    def x_list(self):
+        return [individual.position.x for individual in self.individuals]
+    
+    def y_list(self):
+        return [individual.position.y for individual in self.individuals]
+    
+    def new_day(self):
+        for individual in self.individuals:
+            individual.new_day()
 
 
 

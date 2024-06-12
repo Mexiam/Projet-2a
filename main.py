@@ -1,26 +1,17 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-import Entities
-
-petit_lapin = Entities.Lapin()
-petit_lapin.kill()
-
-def grass_growth(env, rate=0.05):
-    return np.minimum(env + rate, np.ones_like(env))
+from Entities import Lapin, Loup, Case, Map, Population
 
 
-def update_plot(global_plot, grass, grass_qty, prey_population, prey_pop_size, predator_population, predator_pop_size):
+def update_plot(global_plot, grass, prey_population, predator_population):
     """Update 2D environment plot and population line plot.
 
     Args:
         global_plot (tuple): Tuple with the figure container and a tuple with the two subplots.
-        grass (array): Numpy array representing the environment.
-        grass_qty (list): List with grass quantity for each step of the simulation.
-        prey_population (list): List of individuals. Each individual is a dictionary with at least 'x' and 'y' keys.
-        prey_pop_size (list): List of number of individuals for each step.
-        predator_population (list): List of individuals. Each individual is a dictionary with at least 'x' and 'y' keys.
-        predator_pop_size (list): List of number of individuals for each step.
+        grass : instance of Map class
+        prey_population : instance of Lapin class
+        predator_population : instance of Loup class
     """
 
     fig = global_plot[0]
@@ -31,29 +22,19 @@ def update_plot(global_plot, grass, grass_qty, prey_population, prey_pop_size, p
     ax1.cla()
     ax2.cla()
 
-    ax1.imshow(grass, cmap='Greens', vmin=0, vmax=1)
+    grass_map = [[case.quantity_food for case in line] for line in grass]
 
-    preys_x = []
-    preys_y = []
-    for idx in range(len(prey_population)):
-        preys_x.append(prey_population[idx]['x'])
-        preys_y.append(prey_population[idx]['y'])
-    ax1.scatter(preys_x, preys_y, color='b', marker=4)
+    ax1.imshow(grass_map, cmap='Greens', vmin=0, vmax=1)
 
-    predators_x = []
-    predators_y = []
-    for idx in range(len(predator_population)):
-        predators_x.append(predator_population[idx]['x'])
-        predators_y.append(predator_population[idx]['y'])
-    ax1.scatter(predators_x, predators_y, color='r', marker=5)
+    ax1.scatter(prey_population.x_list(), prey_population.y_list(), color='b', marker=4)
 
-    ax2.plot(grass_qty, color='g')
-    ax2.plot(prey_pop_size, color='b')
-    ax2.plot(predator_pop_size, color='r')
+    ax1.scatter(predator_population.x_list(), predator_population.y_list(), color='r', marker=5)
 
-    grass_qty.append((np.sum(grass)))
-    prey_pop_size.append(len(prey_population))
-    predator_pop_size.append(len(predator_population))
+    print(grass.get_food_quantity())
+
+    ax2.plot(grass.get_food_quantity(), color='g')
+    ax2.plot(len(prey_population), color='b')
+    ax2.plot(len(predator_population), color='r')
 
     fig.canvas.flush_events()
     fig.canvas.draw()
@@ -75,30 +56,24 @@ def set_plot(width=25.6, height=13.3):
     return plt.subplots(1, 2, figsize=(width, height))
 
 
-def simulation(y, x, prey_init, predator_init):
-    grass = np.zeros((x, y))
-    grass[0, 3] = 0.8  # A particular point is more grassly than the others
-    grass_qty = [np.sum(grass)]  # Size history
-
-    predator_population = []  # List of predotors
-    predator_pop_size = [len(predator_population)]  # Size history
-    prey_population = [{'x': 5, 'y': 10}]  # List of preys    # One for example
-    prey_pop_size = [len(prey_population)]  # Size history
+def simulation(y, x, prey_init, predator_init, steps):
+    grass = Map(x, y)
+    predator_population = Population(Loup, predator_init, grass)
+    prey_population = Population(Lapin, prey_init, grass)
 
     global_plot = set_plot()
 
-    for s in range(20):
+    for s in range(steps):
         print(f'Step {s}')
-        grass = grass_growth(grass, rate=0.1)
 
-        if len(prey_population) > 0 and prey_population[0]['x'] < 30:  # example of prey moving
-            prey_population[0]['x'] += 1
+        grass.new_day()
+        prey_population.new_day()
+        predator_population.new_day()
 
-        update_plot(global_plot, grass, grass_qty, prey_population, prey_pop_size, predator_population,
-                    predator_pop_size)
+        update_plot(global_plot, grass, prey_population, predator_population)
 
     plt.waitforbuttonpress()
 
 
 if __name__ == "__main__":
-    simulation(y=30, x=30, prey_init=1, predator_init=0)
+    simulation(y=30, x=30, prey_init=15, predator_init=5, steps=20)
