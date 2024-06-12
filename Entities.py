@@ -37,8 +37,31 @@ class Entity:
                 return 0
             self.energy = self.energy - self.base_energy_consumption
             self.age += 1
+        mooving = rand_moove()
+        if(mooving == 0):
+            if(self.position.x != 0):
+                self.position.x -=1
+        elif(mooving == 1):
+            if(self.position.x != self.position.map.max_x-1):
+                self.position.x +=1
+        elif(mooving == 2):
+            if(self.position.y !=0):
+                self.position.y -=1
+        else:
+            if(self.position.y != self.position.map.max_y-1):
+                self.position.y +=1
             
-                
+def rand_moove():
+     val = random.uniform(0, 3)
+     if(val < 0.75):
+        return(0)
+     if(val > 0.75 and val < 1.5):
+        return(1)
+     if(val > 1.5 and val < 2.25):
+        return(2)
+     if(val > 2.25 and val < 3):
+        return(3)
+     
 class Lapin(Entity):
     pass
 
@@ -48,7 +71,7 @@ class Loup(Entity):
  
       
 class Case():
-    def __init__(self, x, y, type = 0, occupancy_rate = 0):
+    def __init__(self, x, y, map, type = 0, occupancy_rate = 0):
         self.type = type #type of the case, it could be grass 0 , terrier 1 
         self.occupancy_rate = occupancy_rate # how mutch entities are at the same time on the case
         self.quantity_food = round(random.uniform(0, 0.5), 2) # quantity of food for rabbits
@@ -56,6 +79,7 @@ class Case():
         self.regen_food = round(random.uniform(0, 0.2), 2) # regen speed of food 
         self.x = x
         self.y = y
+        self.map = map
     
     def set_x(self, x):
         self.x = x
@@ -109,13 +133,13 @@ class Case():
 
 class Map():
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.max_x = x
+        self.max_y = y
         self.map = list()
         for i in range(x):
             self.map.append(list())
             for j in range(y):
-                new_case = Case(i, j)
+                new_case = Case(i, j, self)
                 new_case.set_rand_type(0.9)
                 self.map[i].append(new_case)
 
@@ -123,17 +147,17 @@ class Map():
         return self.map[index]            
 
     def new_day(self):
-        for i in range(self.x):
-            for j in range(self.y):
+        for i in range(self.max_x):
+            for j in range(self.max_y):
                 self.map[i][j].new_day()
 
     def get_random_case(self):
-        return self.map[int(round(random.uniform(0, self.x-1), 0))][int(round(random.uniform(0, self.y-1), 0))]  
+        return self.map[int(round(random.uniform(0, self.max_x-1), 0))][int(round(random.uniform(0, self.max_y-1), 0))]  
 
     def get_food_quantity(self):
         sum = 0
-        for i in range(self.x):
-            for j in range(self.y):
+        for i in range(self.max_x):
+            for j in range(self.max_y):
                 sum += self.map[i][j].quantity_food
         return sum        
 

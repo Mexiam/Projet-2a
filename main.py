@@ -76,4 +76,4 @@ def simulation(y, x, prey_init, predator_init, steps):
 
 
 if __name__ == "__main__":
-    simulation(y=30, x=30, prey_init=15, predator_init=5, steps=20)
+    simulation(y=30, x=30, prey_init=15, predator_init=5, steps=500)
