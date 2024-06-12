@@ -85,25 +85,41 @@ class Case():
     
     def get_regen_food(self):
         return self.regen_food
+    
+    def new_day(self):
+        pass # grow grass here
 
 
-def createPlateau(size):
-    game = []
-    for i in range(0,size):
-        line = []
-        for j in range(0,size):
-            c = Case(i, j, 0)
-            line.append(c)
-        game.append(line)
-    return game
+class Map():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.map = list()
+        for i in range(x):
+            self.map.append(list())
+            for j in range(y):
+                self.map[i].append(Case(i,j))
+
+    def new_day(self):
+        for i in range(self.x):
+            for j in range(self.y):
+                self.map[i][j].new_day()
+
+
+
+class Population():
+    def __init__(self, entity_type, size):
+        individuals = []
+        for i in range(size):
+            individuals.append(entity_type())
 
 
 
 def print_plateau_terminal(size):
-    plateau = createPlateau(size)
+    plateau = Map(size, size)
     for i in range(0,size):
         for j in range(0,size):
-            print(plateau[i][j].regen_food, end=" ")
+            print(plateau.map[i][j].regen_food, end=" ")
         print()
 
 
