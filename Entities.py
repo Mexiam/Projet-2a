@@ -53,9 +53,9 @@ class Case():
     def __init__(self, x, y, occupancy_rate = 0):
         self.type = round(random.uniform(0, 1), 0) #type of the case, it could be grass 0 , terrier 1 
         self.occupancy_rate = occupancy_rate # how mutch entities are at the same time on the case
-        self.quantity_food = round(random.uniform(0, 1), 2) # quantity of food for rabbits
+        self.quantity_food = round(random.uniform(0, 0.5), 2) # quantity of food for rabbits
         self.camo = round(random.uniform(0, 1), 0) # if an entities can hide or not
-        self.regen_food = round(random.uniform(0, 1), 2) # regen speed of food 
+        self.regen_food = round(random.uniform(0, 0.2), 2) # regen speed of food 
         self.x = x
         self.y = y
     
@@ -87,7 +87,6 @@ class Case():
         return self.regen_food
     
     def new_day(self):
-
         if self.type == 0 and self.quantity_food < 1:
             if((self.quantity_food + self.get_regen_food())>1):
                 self.quantity_food = 1
@@ -99,11 +98,11 @@ class Case():
             else:
                 self.quantity_food = 1
 
-#c = Case(0,1)
-#c.type = 0
-#for i in range(10):
-#    print(c.quantity_food)
-#    c.new_day()
+c = Case(0,1)
+c.type = 0
+for i in range(10):
+    print(c.quantity_food)
+    c.new_day()
 
 class Map():
     def __init__(self, x, y):
