@@ -48,8 +48,8 @@ class Loup(Entity):
  
       
 class Case():
-    def __init__(self, x, y, occupancy_rate = 0):
-        self.type = round(random.uniform(0, 1), 0) #type of the case, it could be grass 0 , terrier 1 
+    def __init__(self, x, y, type = 0, occupancy_rate = 0):
+        self.type = type #type of the case, it could be grass 0 , terrier 1 
         self.occupancy_rate = occupancy_rate # how mutch entities are at the same time on the case
         self.quantity_food = round(random.uniform(0, 0.5), 2) # quantity of food for rabbits
         self.camo = round(random.uniform(0, 1), 0) # if an entities can hide or not
@@ -63,8 +63,13 @@ class Case():
     def set_x(self, y):
         self.y = y
     
-    def set_type(self, type):
-        self.type = type
+    def set_rand_type(self, val):
+        probability = round(random.uniform(0, 1), 2)
+        if(probability > val):
+            self.type = 1
+        else:
+            self.type = 0
+        
 
     def get_x(self):
         return self.x
@@ -96,11 +101,11 @@ class Case():
             else:
                 self.quantity_food = 1
 
-c = Case(0,1)
-c.type = 0
-for i in range(10):
-    print(c.quantity_food)
-    c.new_day()
+#c = Case(0,1)
+#c.type = 0
+#for i in range(10):
+#    print(c.quantity_food)
+#    c.new_day()
 
 class Map():
     def __init__(self, x, y):
@@ -110,7 +115,9 @@ class Map():
         for i in range(x):
             self.map.append(list())
             for j in range(y):
-                self.map[i].append(Case(i,j))
+                new_case = Case(i, j)
+                new_case.set_rand_type(0.9)
+                self.map[i].append(new_case)
 
     def __getitem__(self, index):
         return self.map[index]            
