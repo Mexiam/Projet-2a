@@ -87,8 +87,23 @@ class Case():
         return self.regen_food
     
     def new_day(self):
-        pass # grow grass here
 
+        if self.type == 0 and self.quantity_food < 1:
+            if((self.quantity_food + self.get_regen_food())>1):
+                self.quantity_food = 1
+            else:
+                self.quantity_food += self.get_regen_food()
+        else:
+            if(self.type == 1):
+                self.quantity_food = 0
+            else:
+                self.quantity_food = 1
+
+#c = Case(0,1)
+#c.type = 0
+#for i in range(10):
+#    print(c.quantity_food)
+#    c.new_day()
 
 class Map():
     def __init__(self, x, y):
@@ -123,4 +138,4 @@ def print_plateau_terminal(size):
         print()
 
 
-print_plateau_terminal(5)
+#print_plateau_terminal(5)
