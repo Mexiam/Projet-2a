@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from Entities import Lapin, Loup, Case, Map, Population
 
 
-def update_plot(global_plot, grass, prey_population, predator_population):
+def update_plot(global_plot, grass, grass_data, prey_population, prey_data, predator_population, pred_data):
     """Update 2D environment plot and population line plot.
 
     Args:
@@ -22,19 +22,16 @@ def update_plot(global_plot, grass, prey_population, predator_population):
     ax1.cla()
     ax2.cla()
 
-    grass_map = [[case.quantity_food for case in line] for line in grass]
+    ax1.imshow(grass.get_food_map(), cmap='Greens', vmin=0, vmax=1)
 
-    ax1.imshow(grass_map, cmap='Greens', vmin=0, vmax=1)
+    (x_protected_pos, y_protected_pos) = grass.protected_pos()
+    ax1.scatter(y_protected_pos, x_protected_pos, color='k', marker='o')
+    ax1.scatter(prey_population.y_list(), prey_population.x_list(), color='b', marker=4)
+    ax1.scatter(predator_population.y_list(), predator_population.x_list(), color='r', marker=5)
 
-    ax1.scatter(prey_population.x_list(), prey_population.y_list(), color='b', marker=4)
-
-    ax1.scatter(predator_population.x_list(), predator_population.y_list(), color='r', marker=5)
-
-    print(grass.get_food_quantity())
-
-    ax2.plot(grass.get_food_quantity(), color='g')
-    ax2.plot(len(prey_population), color='b')
-    ax2.plot(len(predator_population), color='r')
+    ax2.plot(prey_data, color='b')
+    ax2.plot(pred_data, color='r')
+    ax2.plot(grass_data, color='g')
 
     fig.canvas.flush_events()
     fig.canvas.draw()
@@ -61,6 +58,10 @@ def simulation(y, x, prey_init, predator_init, steps):
     predator_population = Population(Loup, predator_init, grass)
     prey_population = Population(Lapin, prey_init, grass)
 
+    grass_data = []
+    prey_data = []
+    pred_data = []
+
     global_plot = set_plot()
 
     for s in range(steps):
@@ -70,7 +71,11 @@ def simulation(y, x, prey_init, predator_init, steps):
         prey_population.new_day()
         predator_population.new_day()
 
-        update_plot(global_plot, grass, prey_population, predator_population)
+        grass_data.append(grass.get_food_quantity()*prey_init/300)
+        prey_data.append(len(prey_population))
+        pred_data.append(len(predator_population))
+
+        update_plot(global_plot, grass, grass_data, prey_population, prey_data, predator_population, pred_data)
 
     plt.waitforbuttonpress()
 

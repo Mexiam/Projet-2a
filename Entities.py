@@ -159,7 +159,25 @@ class Map():
         for i in range(self.max_x):
             for j in range(self.max_y):
                 sum += self.map[i][j].quantity_food
-        return sum        
+        return sum
+    
+    def get_food_map(self):
+        result = []
+        for i in range(self.max_x):
+            result.append([])
+            for j in range(self.max_y):
+                result[i].append(self.map[i][j].quantity_food)
+        return result
+
+    def protected_pos(self):
+        x_list = []
+        y_list = []
+        for i in range(self.max_x):
+            for j in range(self.max_y):
+                if self.map[i][j].type == 1:
+                    x_list.append(i)
+                    y_list.append(j)
+        return (x_list, y_list)            
 
 
 class Population():
