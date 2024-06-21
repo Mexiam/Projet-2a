@@ -1,7 +1,5 @@
-import random
-import numpy as np
 import matplotlib.pyplot as plt
-from Entities import Lapin, Loup, Case, Map, Population
+from Entities import Lapin, Loup, Map, Population
 
 
 def update_plot(global_plot, grass, grass_data, prey_population, prey_data, predator_population, pred_data):
@@ -81,4 +79,4 @@ def simulation(y, x, prey_init, predator_init, steps):
 
 
 if __name__ == "__main__":
-    simulation(y=30, x=30, prey_init=100, predator_init=80, steps=500)
+    simulation(y=30, x=30, prey_init=120, predator_init=80, steps=500)
