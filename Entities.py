@@ -5,11 +5,11 @@ class Entity:
         self.id = id
         self.parent_male = '' #contains the male parent entity 
         self.parent_female = '' #contains the female parent entity
-        #self.sane #boolean : if false, entity loose speed and energy
+        self.sane = True #boolean : if false, entity loose speed and energy
         self.energy = energy #dies if at 0. Entity has to eat to gain energy
         #self.camouflage #determine with case camo if other entities can see it
         self.base_speed = int(round(random.uniform(0.6, max_speed + 0.5), 0)) #basic speed of the entity. lower when entity is not sane
-        self.base_energy_consumption = round(random.normal(loc=avg_energy_consumption, scale=avg_energy_consumption), 2) #energy consumed at each round
+        self.base_energy_consumption = round(random.normal(loc=avg_energy_consumption, scale=avg_energy_consumption), 2) #energy consumed at each round. higher when entity is not sane
         self.rationnality = int(round(random.normal(loc=avg_rationnality, scale=avg_rationnality), 0)) #probability to make a rationnal decision next round (number of mooves compared)
         self.age = 0 #in number of rounds, updated each rounds
         self.maturity = maturity #minimum age for reproduction
@@ -23,7 +23,7 @@ class Entity:
         self.population = population
 
     def can_reproduce(self):
-        return self.age >= self.maturity and self.age >= (self.last_reproduction_age + self.reproduction_reload_time)
+        return self.age >= self.maturity and self.age >= (self.last_reproduction_age + self.reproduction_reload_time) and self.sane
     
     def reproduce(self, entity):
         print('Reproduction of ' + type(self).__name__ + ' ' + str(self.id) + ' with ' + type(entity).__name__ + ' ' + str(entity.id) + ' at pos ' + str(self.position))
@@ -47,12 +47,23 @@ class Entity:
     def end_day(self):
         if self.alive:
             if self.age >= self.death_age:
-                self.kill("natural death")
+                if(not self.sane):
+                    self.kill("sickness")
+                else:   
+                    self.kill("natural death")
                 return 0
             if self.energy <= 0:
                 self.kill("starved to death")
                 return 0
             self.age += 1
+            if(not self.sane):
+                if(random.uniform(0, 10) <= 3.3):
+                    print('Cured : ' + type(self).__name__ + ' ' + str(self.id))
+                    self.sane = True
+            else:    
+                if(random.uniform(0, 10) <= 0.5):
+                    print('Sick : ' + type(self).__name__ + ' ' + str(self.id))
+                    self.sane = False
 
     def random_move(self, n): 
         arrival = self.position
@@ -83,14 +94,17 @@ class Lapin(Entity):
         if isinstance(entity, Lapin):
             self.reproduce(entity)
         if isinstance(entity, Loup):
-            print("lapin "+ str(self.id) + " meet loup on case type " + str(self.position.type))
             entity.eat(self)
 
     def new_day(self):
         self.energy += self.position.quantity_food
         self.position.quantity_food = 0
-        self.moove_to(self.random_move(self.base_speed))
-        self.energy = self.energy - self.base_speed * self.base_energy_consumption
+        if(self.sane):
+            self.moove_to(self.random_move(self.base_speed))
+            self.energy = self.energy - self.base_speed * self.base_energy_consumption
+        else:    
+            self.moove_to(self.random_move(1))
+            self.energy = self.energy - 2 * self.base_energy_consumption
         self.end_day()        
 
         
@@ -108,10 +122,16 @@ class Loup(Entity):
         if self.position.type == 0:
             self.energy += entity.energy
             entity.kill("eaten by Loup " + str(self.id))
+            if not entity.sane:
+                self.sane = False
 
     def new_day(self):
-        self.moove_to(self.random_move(self.base_speed))
-        self.energy = self.energy - self.base_speed * self.base_energy_consumption
+        if(self.sane):
+            self.moove_to(self.random_move(self.base_speed))
+            self.energy = self.energy - self.base_speed * self.base_energy_consumption
+        else:    
+            self.moove_to(self.random_move(1))
+            self.energy = self.energy - 2 * self.base_energy_consumption
         self.end_day()
  
       
@@ -181,12 +201,7 @@ class Case():
 
     def __str__(self):
         return '(x: ' + str(self.x) + ',y: ' + str(self.y) + ')'   
-     
-#c = Case(0,1)
-#c.type = 0
-#for i in range(10):
-#    print(c.quantity_food)
-#    c.new_day()
+
 
 class Map():
     def __init__(self, x, y):
@@ -261,11 +276,11 @@ class Population():
     def __len__(self):
         return len(list(filter(lambda i: i.alive, self.individuals)))
     
-    def x_list(self):
-        return [individual.position.x for individual in filter(lambda i: i.alive, self.individuals)]
+    def x_list(self, filter_function=lambda i: i.alive):
+        return [individual.position.x for individual in filter(filter_function, self.individuals)]
     
-    def y_list(self):
-        return [individual.position.y for individual in filter(lambda i: i.alive, self.individuals)]
+    def y_list(self, filter_function=lambda i: i.alive):
+        return [individual.position.y for individual in filter(filter_function, self.individuals)]
     
     def new_day(self):
         for individual in filter(lambda i: i.alive, self.individuals):
@@ -274,14 +289,3 @@ class Population():
     def add(self, entity):
         self.individuals.append(entity)
         entity.id = len(self.individuals)
-
-
-def print_plateau_terminal(size):
-    plateau = Map(size, size)
-    for i in range(0,size):
-        for j in range(0,size):
-            print(plateau.map[i][j].regen_food, end=" ")
-        print()
-
-
-#print_plateau_terminal(5)

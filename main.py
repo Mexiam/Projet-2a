@@ -23,9 +23,11 @@ def update_plot(global_plot, grass, grass_data, prey_population, prey_data, pred
 
     (x_protected_pos, y_protected_pos) = grass.protected_pos()
     ax1.scatter(y_protected_pos, x_protected_pos, color='k', marker='o')
+    ax1.scatter(prey_population.y_list(lambda i : i.alive and not i.sane), prey_population.x_list(lambda i : i.alive and not i.sane), color='g', marker='X')
+    ax1.scatter(predator_population.y_list(lambda i : i.alive and not i.sane), predator_population.x_list(lambda i : i.alive and not i.sane), color='g', marker='X')
     ax1.scatter(prey_population.y_list(), prey_population.x_list(), color='b', marker=4)
     ax1.scatter(predator_population.y_list(), predator_population.x_list(), color='r', marker=5)
-
+    
     ax2.plot(prey_data, color='b')
     ax2.plot(pred_data, color='r')
     ax2.plot(grass_data, color='g')
@@ -68,7 +70,7 @@ def simulation(y, x, prey_init, predator_init, steps):
         prey_population.new_day()
         predator_population.new_day()
 
-        grass_data.append(grass.get_food_quantity()*prey_init/300)
+        grass_data.append(grass.get_food_quantity()*prey_init/1000)
         prey_data.append(len(prey_population))
         pred_data.append(len(predator_population))
 
