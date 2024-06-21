@@ -1,7 +1,7 @@
-import random
+from numpy import random
 
 class Entity:
-    def __init__(self, case, population, id=0):
+    def __init__(self, case, population, id, avg_lifespan=20):
         self.id = id
         self.parent_male = '' #contains the male parent entity 
         self.parent_female = '' #contains the female parent entity
@@ -13,7 +13,7 @@ class Entity:
         #self.rationnality #probability to make a rationnal decision next round
         self.age = 0 #in number of rounds, updated each rounds
         self.maturity = 6 #minimum age for reproduction
-        self.death_age = round(random.uniform(5, 30), 0)#maximum age
+        self.death_age = round(random.normal(loc=avg_lifespan, scale=avg_lifespan/2), 0)#maximum age
         self.alive = True #boolean : if false, entity is dead
         #self.risk_taking #probability to choose a dangerous move towards food or a partner
         self.position = case #a Case class entity
@@ -60,6 +60,9 @@ class Entity:
 
 
 class Lapin(Entity):
+    def __init__(self, case, population, id=0):
+        super().__init__(case, population, id, avg_lifespan=30)
+
     def meet(self, entity):
         if isinstance(entity, Lapin):
             self.reproduce(entity)
@@ -74,6 +77,9 @@ class Lapin(Entity):
 
         
 class Loup(Entity):
+    def __init__(self, case, population, id=0):
+        super().__init__(case, population, id, avg_lifespan=60)
+
     def meet(self, entity):
         if isinstance(entity, Loup):
             self.reproduce(entity)
