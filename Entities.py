@@ -67,6 +67,7 @@ class Lapin(Entity):
         if isinstance(entity, Lapin):
             self.reproduce(entity)
         if isinstance(entity, Loup):
+            print("lapin "+ str(self.id) + " meet loup on case type " + str(self.position.type))
             entity.eat(self)
 
     def new_day(self):
@@ -84,12 +85,12 @@ class Loup(Entity):
         if isinstance(entity, Loup):
             self.reproduce(entity)
         elif isinstance(entity, Lapin):
-            if self.position.type != 1:
-                self.eat(entity)
+            self.eat(entity)
 
     def eat(self, entity):
-        self.energy += entity.energy
-        entity.kill("eaten by Loup " + str(self.id))
+        if self.position.type == 0:
+            self.energy += entity.energy
+            entity.kill("eaten by Loup " + str(self.id))
 
     def new_day(self):
         self.random_move()
