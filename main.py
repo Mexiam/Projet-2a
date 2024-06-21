@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 from Entities import Lapin, Loup, Map, Population
-import time
 import keyboard
 def update_plot(global_plot, grass, grass_data, prey_population, prey_data, predator_population, pred_data):
     """Update 2D environment plot and population line plot.
@@ -53,8 +52,8 @@ def set_plot(width=25.6, height=13.3):
 
 def simulation(y, x, prey_init, predator_init, steps):
     grass = Map(x, y)
-    predator_population = Population(Loup, predator_init, grass)
-    prey_population = Population(Lapin, prey_init, grass)
+    predator_population = Population(Loup, predator_init, grass, min_start_energy=2, max_start_energy=6)
+    prey_population = Population(Lapin, prey_init, grass, min_start_energy=1, max_start_energy=5)
 
     grass_data = []
     prey_data = []
@@ -63,7 +62,6 @@ def simulation(y, x, prey_init, predator_init, steps):
     global_plot = set_plot()
 
     for s in range(steps):
-        keyboard.wait('space')                                                                                                     
         print(f'Step {s}')
 
         grass.new_day()
