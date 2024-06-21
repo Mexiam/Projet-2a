@@ -1,10 +1,10 @@
 import random
 
 class Entity:
-    def __init__(self, case, population):
-        #self.id
-        #self.parent_male #contains the male parent entity 
-        #self.parent_female #contains the female parent entity
+    def __init__(self, case, population, id=0):
+        self.id = id
+        self.parent_male = '' #contains the male parent entity 
+        self.parent_female = '' #contains the female parent entity
         #self.sane #boolean : if false, entity loose speed and energy
         self.energy = round(random.uniform(1, 5), 2)#dies if at 0. Entity has to eat to gain energy
         #self.camouflage #determine with case camo if other entities can see it
@@ -21,13 +21,16 @@ class Entity:
         self.population = population
 
     def reproduce(self, entity):
-        print('reproduction')
+        print('Reproduction of ' + type(self).__name__ + ' ' + str(self.id) + ' with ' + type(entity).__name__ + ' ' + str(entity.id) + ' at pos ' + str(self.position))
         if entity.age >= entity.maturity and self.age >= self.maturity:
             baby = type(entity)(case=self.position, population=self.population)
             self.population.add(baby)
+            baby.parent_male = self
+            baby.parent_female = entity
 
-    def kill(self):
+    def kill(self, reason=""):
         self.alive = False
+        print('Death : ' + type(self).__name__ + ' ' + str(self.id) + ' reason : ' + reason + ' at pos ' + str(self.position))
 
     def moove_to(self, case):
         self.position = case
@@ -36,10 +39,10 @@ class Entity:
     def end_day(self):
         if self.alive:
             if self.age >= self.death_age:
-                self.alive = False
+                self.kill("natural death")
                 return 0
             if self.energy <= 0:
-                self.alive = False
+                self.kill("starved to death")
                 return 0
             self.energy = self.energy - self.base_energy_consumption
             self.age += 1
@@ -60,6 +63,8 @@ class Lapin(Entity):
     def meet(self, entity):
         if isinstance(entity, Lapin):
             self.reproduce(entity)
+        if isinstance(entity, Loup):
+            entity.eat(self)
 
     def new_day(self):
         self.energy += self.position.quantity_food
@@ -76,9 +81,8 @@ class Loup(Entity):
             self.eat(entity)
 
     def eat(self, entity):
-        print("Lapin mangé par le loup !")
         self.energy += entity.energy
-        entity.kill()
+        entity.kill("eaten by Loup " + str(self.id))
 
     def new_day(self):
         self.random_move()
@@ -147,6 +151,10 @@ class Case():
                 for j in range(i+1, len(self.entity_list)):
                     self.entity_list[i].meet(self.entity_list[j])
         self.entity_list = []
+
+    def __str__(self):
+        return '(x: ' + str(self.x) + ',y: ' + str(self.y) + ')'   
+     
 #c = Case(0,1)
 #c.type = 0
 #for i in range(10):
@@ -218,7 +226,7 @@ class Population():
         self.individuals = []
         for _ in range(size):
             random_case = map.get_random_case()
-            self.individuals.append(entity_type(case=random_case, population=self))
+            self.individuals.append(entity_type(case=random_case, population=self, id=len(self.individuals)))
 
     def __iter__(self):
         return filter(lambda i: i.alive, self.individuals)
@@ -238,6 +246,7 @@ class Population():
 
     def add(self, entity):
         self.individuals.append(entity)
+        entity.id = len(self.individuals)
 
 
 def print_plateau_terminal(size):
