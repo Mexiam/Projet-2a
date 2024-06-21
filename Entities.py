@@ -78,7 +78,8 @@ class Loup(Entity):
         if isinstance(entity, Loup):
             self.reproduce(entity)
         elif isinstance(entity, Lapin):
-            self.eat(entity)
+            if self.position.type != 1:
+                self.eat(entity)
 
     def eat(self, entity):
         self.energy += entity.energy
