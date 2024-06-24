@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from Entities import Lapin, Loup, Map, Population
 import keyboard
+
 def update_plot(global_plot, grass, grass_data, prey_population, prey_data, predator_population, pred_data):
     """Update 2D environment plot and population line plot.
 
@@ -35,7 +36,7 @@ def update_plot(global_plot, grass, grass_data, prey_population, prey_data, pred
     fig.canvas.flush_events()
     fig.canvas.draw()
 
-    plt.pause(0.01)
+    plt.pause(0.5) 
 
 
 def set_plot(width=25.6, height=13.3):
