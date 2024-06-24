@@ -1,6 +1,25 @@
 import matplotlib.pyplot as plt
+import matplotlib.transforms as trsf
 from Entities import Lapin, Loup, Map, Population
-import keyboard
+from svgpathtools import svg2paths
+from svgpath2mpl import parse_path
+
+lapin_path, attributes = svg2paths('lapin.svg')
+lapin_marker = parse_path(attributes[0]['d'])
+
+lapin_marker.vertices -= lapin_marker.vertices.mean(axis=0)
+lapin_marker = lapin_marker.transformed(trsf.Affine2D().rotate_deg(180))
+lapin_marker = lapin_marker.transformed(trsf.Affine2D().scale(-1,1))
+
+loup_path, attributes = svg2paths('loup.svg')
+loup_marker = parse_path(attributes[0]['d'])
+
+loup_marker.vertices -= loup_marker.vertices.mean(axis=0)
+loup_marker = loup_marker.transformed(trsf.Affine2D().rotate_deg(180))
+loup_marker = loup_marker.transformed(trsf.Affine2D().scale(-1,1))
+
+
+
 def update_plot(global_plot, grass, grass_data, prey_population, prey_data, predator_population, pred_data):
     """Update 2D environment plot and population line plot.
 
@@ -25,8 +44,8 @@ def update_plot(global_plot, grass, grass_data, prey_population, prey_data, pred
     ax1.scatter(y_protected_pos, x_protected_pos, color='k', marker='o')
     ax1.scatter(prey_population.y_list(lambda i : i.alive and not i.sane), prey_population.x_list(lambda i : i.alive and not i.sane), color='g', marker='X')
     ax1.scatter(predator_population.y_list(lambda i : i.alive and not i.sane), predator_population.x_list(lambda i : i.alive and not i.sane), color='g', marker='X')
-    ax1.scatter(prey_population.y_list(), prey_population.x_list(), color='b', marker=4)
-    ax1.scatter(predator_population.y_list(), predator_population.x_list(), color='r', marker=5)
+    ax1.scatter(prey_population.y_list(), prey_population.x_list(), color='b', marker=lapin_marker)
+    ax1.scatter(predator_population.y_list(), predator_population.x_list(), color='r', marker=loup_marker)
     
     ax2.plot(prey_data, color='b')
     ax2.plot(pred_data, color='r')
